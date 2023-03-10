@@ -1,0 +1,56 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">E-Commerce</a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-home" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" Match="NavLinkMatch.All">
+                <span class="oi oi-terminal" aria-hidden="true"></span>
+                <div class="btn-group">
+                    <button type="button" class="btn bg-none text-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        Manage Products
+                    </button>
+                    <ul class="dropdown-menu bg-secondary">
+                        <li>
+                            <NavLink class="nav-link" href="addProduct" Match="NavLinkMatch.All">
+                                <span class="oi oi-plus p-1" aria-hidden="true"></span> Add Product
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink class="nav-link" href="addProduct" Match="NavLinkMatch.All">
+                                <span class="oi oi-arrow-circle-top p-1" aria-hidden="true"></span> Update Product
+                            </NavLink>
+                        </li>
+                        <li>
+                            <NavLink class="nav-link" href="addProduct" Match="NavLinkMatch.All">
+                                <span class="oi oi-trash p-1" aria-hidden="true"></span> Delete Product
+                            </NavLink>
+                        </li>
+                    </ul>
+                </div>
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

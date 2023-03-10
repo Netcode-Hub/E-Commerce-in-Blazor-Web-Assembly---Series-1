@@ -1,0 +1,84 @@
+﻿@page "/addProduct"
+@using ORMExplained.Shared.DTO;
+@using ORMExplained.Shared.Models;
+@inject IProductServices productService
+
+<div class="row">
+    <div class="col-md-6 offset-3">
+        <h3>Add Product</h3>
+
+        <EditForm Model="@newProduct" OnValidSubmit="HandleAddProduct">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <ValidationSummary class="form-control p-3"></ValidationSummary>
+            <div class="form-group mt-2">
+                <div class="alert alert-@CssClass">@Message</div>
+            </div>
+            <div class="form-group mt-2">
+                <label class="form-label" for="title">Name</label>
+                <InputText id="title" @bind-Value="newProduct.Name" class="form-control"></InputText>
+                <ValidationMessage For="@(()=> newProduct.Name)"></ValidationMessage>
+            </div>
+            <div class="form-group mt-2">
+                <label class="form-label" for="url">Original Price</label>
+                <input type="text" id="price" min="0.5"  @bind="newProduct.OriginalPrice" class="form-control"></input>
+                <ValidationMessage For="@(()=> newProduct.OriginalPrice)"></ValidationMessage>
+            </div>
+            <div class="form-group mt-2">
+                <label class="form-label" for="url">New Price</label>
+                <input type="text" id="price" min="0.5" @bind="newProduct.NewPrice" class="form-control"></input>
+                <ValidationMessage For="@(()=> newProduct.NewPrice)"></ValidationMessage>
+            </div>
+            <div class="form-group mt-2">
+                <label class="form-label" for="description">Description</label>
+                <InputTextArea id="description" @bind-Value="newProduct.Description" class="form-control"></InputTextArea>
+                <ValidationMessage For="@(()=> newProduct.Description)"></ValidationMessage>
+            </div>
+            <div class="form-group mt-2">
+                <label class="form-label" for="description">Quantity</label>
+                <input type="number" id="description" min="1" @bind="newProduct.Quantity"  class="form-control"></input>
+                <ValidationMessage For="@(()=> newProduct.Quantity)"></ValidationMessage>
+            </div>
+            <div class="form-group mt-2">
+                <label class="form-label" for="image">Image</label>&nbsp; <span class="text-danger fw-bold">@uploadMessage</span>
+                <InputFile id="image" OnChange="OnFileChange" class="form-control"></InputFile>
+                <ValidationMessage For="@(()=> newProduct.Image)"></ValidationMessage>
+            </div>
+            <div class="form-check mt-2">
+                <button type="submit" class="btn btn-primary"> <i class="oi oi-plus"></i> Create</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+
+@code {
+    public Product newProduct = new Product();
+    private string? uploadMessage;
+    private string? Message = string.Empty;
+    private string? CssClass = string.Empty;
+    async Task HandleAddProduct()
+    {
+        Message = "";
+        var response = await productService.AddProduct(newProduct);
+            Message = response!.Message;
+            CssClass = response!.CssClass; 
+    }
+
+
+    async Task OnFileChange(InputFileChangeEventArgs e)
+    {
+        FileInfo fileInfo = new FileInfo(e.File.Name);
+        if(fileInfo.Extension.ToLower().Contains(".jpg"))
+        {
+            uploadMessage = "";
+            var format = "image/jpg";
+            var resizeImage = await e.File.RequestImageFileAsync(format, 300, 300);
+            var buffer = new byte[resizeImage.Size];
+            await resizeImage.OpenReadStream().ReadAsync(buffer);
+            var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+            newProduct.Image = imageData;
+
+        }
+        else { uploadMessage = "Invalid file selected (only JPG file)"; }
+    }
+}

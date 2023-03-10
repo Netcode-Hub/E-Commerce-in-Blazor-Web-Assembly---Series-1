@@ -1,0 +1,98 @@
+﻿@page "/productDetails/{id:int}"
+@inject IProductServices productService
+
+@if (serviceModel.SingleProduct != null)
+{
+    <div class="row">
+        <div class="row sticky-top mb-1">
+            <div class="col-md-12 mt-1"><h3 class="text-muted" style="font-family:'Javanese Text'">Product</h3></div>
+        </div>
+        <hr />
+        <div class="col-md-6 offset-3">
+            <div class="card border-1 m-2 mb-2">
+                <div class="form-group mt-2">
+                    <div class="alert alert-@CssClass">@Message</div>
+                </div>
+                <div class="card-header text-center">
+                    <img class="card-img-top" src="@serviceModel.SingleProduct.Image" style="width:300px; height:200px" />
+                    @if (DateTime.Now < serviceModel.SingleProduct.UploadedDate.AddDays(30))
+                    {
+                        <span class="badge bg-info position-absolute top-0 start-100 translate-middle badge rounded-pill">New</span>
+                    }
+                </div>
+                <div class="card-body">
+                    <p>
+                        <span class="text-primary">@serviceModel.SingleProduct.Name </span>&nbsp; &nbsp;
+                        <br />
+                        <span class="text-secondary text-muted fs-6">@serviceModel.SingleProduct.Description</span><br>
+                        @if (serviceModel.SingleProduct.NewPrice != 0 && serviceModel.SingleProduct.NewPrice < serviceModel.SingleProduct.OriginalPrice)
+                        {
+                            <span class="text-danger text-decoration-line-through" style="font-size:16px;"><i>Gh¢@serviceModel.SingleProduct.OriginalPrice</i></span>
+                            <span>&nbsp; &nbsp;</span>
+                            <span class="badge bg-primary badge rounded-end bg-danger">Reduced</span>
+                            <br />
+                            <span class="text-primary text-center" style="font-size:16px;"><i>Gh¢@serviceModel.SingleProduct.NewPrice</i></span>
+                        }
+                        else
+                        {
+                            <span class="text-danger" style="font-size:16px;"><i>Gh¢@serviceModel.SingleProduct.OriginalPrice</i></span>
+                        }
+                        <h6 class="text-muted">In Stock: @serviceModel.SingleProduct.Quantity</h6>
+                        <input type="number" @bind="Quantity" min="1" class="form-control w-25"></input>
+                    </p>
+
+                </div>
+                <div class="card-footer bg-white">
+                    <button class="btn btn-outline-danger btn-sm" @onclick="async ()=> await AddProductToCart(serviceModel.SingleProduct.Id)">
+                        <i class="oi oi-cart fs-5"></i>
+                        Add to cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 offset-3 mb-5">
+                <div class="d-flex justify-content-center mt-5">
+                    <div class="spinner-border text-danger" role="status" style="width: 5rem; height: 5rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+@code {
+    [Parameter] public int Id { get; set; }
+    private int Quantity = 1;
+    private string? Message = string.Empty;
+    private string? CssClass = string.Empty;
+    public ServiceModel serviceModel = new ServiceModel();
+
+    protected override async Task OnParametersSetAsync() => await GetProducts();
+
+    private async Task GetProducts() => serviceModel = await productService.GetProduct(Id);
+
+    private async Task AddProductToCart(int ProductId)
+    {
+        Message = "";
+        CssClass = "";
+        if (Quantity >= 1 && Quantity <= serviceModel.SingleProduct!.Quantity)
+        {
+
+        }
+        else
+        {
+            Message = "Invalid quantity provided";
+            CssClass = "warning";
+        }
+    }
+}
+

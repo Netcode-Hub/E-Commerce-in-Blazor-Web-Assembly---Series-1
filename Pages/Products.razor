@@ -1,0 +1,88 @@
+﻿@page "/"
+@using ORMExplained.Shared.DTO;
+@inject IProductServices productService
+
+@if (serviceModel.ProductList != null)
+{
+    <div class="row">
+        <div class="row sticky-top mb-1">
+            <div class="col-md-8 mt-1"><h3 class="text-muted" style="font-family:'Javanese Text'">Products</h3></div>
+        </div>
+        <hr />
+        @foreach (var product in serviceModel.ProductList)
+        {
+            <div class="col-md-3">
+                <div class="card border-1 m-2 mb-2">
+                    <a href="productDetails/@product.Id" style="text-decoration:none;">
+                        <div class="card-header text-center">
+                            <img class="card-img-top" src="@product.Image" style="width:200px; height:150px" />
+                            @if (DateTime.Now < product.UploadedDate.AddDays(30))
+                            {
+                                <span class="badge bg-info position-absolute top-0 start-100 translate-middle badge rounded-pill">New</span>
+                            }
+                        </div>
+                        <div class="card-body">
+                            <p>
+                                <span class="text-primary">@product.Name </span>&nbsp; &nbsp;
+                                <br />
+                                <span class="text-secondary text-muted fs-6">@product.Description</span><br>
+                                @if (product.NewPrice != 0 && product.NewPrice < product.OriginalPrice)
+                                {
+                                    <span class="text-danger text-decoration-line-through" style="font-size:16px;"><i>Gh¢@product.OriginalPrice</i></span>
+                                    <span>&nbsp; &nbsp;</span>
+                                    <span class="badge bg-primary badge rounded-end bg-danger">Reduced</span>
+                                    <br />
+                                    <span class="text-primary text-center" style="font-size:16px;"><i>Gh¢@product.NewPrice</i></span>
+                                }
+                                else
+                                {
+                                    <span class="text-danger" style="font-size:16px;"><i>Gh¢@product.OriginalPrice</i></span>
+                                }
+
+                            </p>
+                        </div>
+                    </a>
+                    <div class="card-footer bg-white">
+                        <button class="btn btn-outline-danger btn-sm">
+                            <i class="oi oi-cart fs-5"></i>
+                            Add to cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 offset-3 mb-5">
+                <div class="d-flex justify-content-center mt-5">
+                    <div class="spinner-border text-danger" role="status" style="width: 5rem; height: 5rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+
+
+
+
+
+@code {
+    public ServiceModel serviceModel = new ServiceModel();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetProducts();
+    }
+
+
+    private async Task GetProducts() => serviceModel = await productService.GetProducts();
+
+}
